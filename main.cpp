@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <limits>
@@ -70,6 +69,9 @@ void ChangeStorage();
 void Add_element_to_end();
 
 void Cash_status();
+
+void discount(int count, float &total_sum);
+
 
 int main() {
 
@@ -150,7 +152,7 @@ void Start()
 void Ignore() {
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');//очистка cin(всего потока данных)от начала до конца
-	
+
 
 }
 
@@ -315,6 +317,7 @@ void Sell()
 	int id, count, confirm;//id, количество
 	bool First = true;
 	float total_sum = 0;
+	int sum_count = 0;
 	int pay;
 	while (true)
 	{
@@ -335,6 +338,7 @@ void Sell()
 					std::cout << "Количество товаров на складе: " << count_arr[id - 1] << std::endl;
 					std::cout << "Введите количество товара: ";
 					std::cin >> count;
+
 					if (count<1 || count>count_arr[id - 1])
 					{
 						std::cerr << "ERROR" << std::endl;
@@ -365,15 +369,18 @@ void Sell()
 			{
 				if (First)//формирование чека при первой покупке
 				{
+					sum_count += count*8;
 					name_arr_receipt[size_receipt - 1] = name_arr[id - 1];
 					count_arr_receipt[size_receipt - 1] = count;
 					price_arr_receipt[size_receipt - 1] = price_arr[id - 1] * count;
 					count_arr[id - 1] -= count;
 					total_sum += price_arr[id - 1] * count;
+
 					First = false;
 				}
 				else {
 					Add_size_receipt(id, count);
+					sum_count += count*8;//в одной упаковке 8 ролл
 					total_sum += price_arr[id - 1] * count;
 
 				}
@@ -394,7 +401,10 @@ void Sell()
 
 
 		} while (true);
-		Cout_recipt();
+		std::cout << "Итоговая сумма без учета скидок: " << total_sum<<std::endl;
+		discount(sum_count, total_sum);
+		//вывод чека перенес в функцию discount
+		std::cout << "Итоговая сумма с учетом скидок: " << total_sum<<std::endl;
 		//скидки
 		do {
 			std::cout << "Наличка или безнал?" << std::endl;
@@ -405,6 +415,7 @@ void Sell()
 		if (pay == 1)
 		{
 			cash += total_sum;
+			cash_in_come += total_sum;
 		}
 		else if (pay == 2) {
 			card_in_come += total_sum;
@@ -468,6 +479,7 @@ void Cout_recipt()
 
 	}
 	std::cout << std::endl;
+
 }
 
 void Change_price() {
@@ -571,11 +583,11 @@ void DeleteElementByIndex()
 		std::cin >> index;
 
 	} while (index < 1 || index > size);
-	for (int i = 0, j=0; i < size, j < size; i++, j++)
+	for (int i = 0, j = 0; i < size, j < size; i++, j++)
 	{
 		if (index - 1 == i) {
 			i++;
-			id_arr[j] =	id_arr_temp[j];
+			id_arr[j] = id_arr_temp[j];
 			name_arr[j] = name_arr_temp[i];
 			count_arr[j] = count_arr_temp[i];
 			price_arr[j] = price_arr_temp[i];
@@ -588,10 +600,10 @@ void DeleteElementByIndex()
 		}
 
 	}
-		delete[] id_arr_temp;
-		delete[] name_arr_temp;
-		delete[] count_arr_temp;
-		delete[] price_arr_temp;
+	delete[] id_arr_temp;
+	delete[] name_arr_temp;
+	delete[] count_arr_temp;
+	delete[] price_arr_temp;
 }
 
 void Add_element_to_end()
@@ -642,11 +654,39 @@ void Add_element_to_end()
 
 void Cash_status()
 {
-	total_in_come = card_in_come+cash_in_come;
-	std::cout << "Наличные в кассе: " << cash<<std::endl;
-	std::cout << "Выручка в кассе: " << cash_in_come<<std::endl;
-	std::cout << "Выручка по безналу: " << card_in_come<<std::endl;
-	std::cout << "Итоговая выручка: " << total_in_come<<std::endl;
+	total_in_come = card_in_come + cash_in_come;
+	std::cout << "Наличные в кассе: " << cash << std::endl;
+	std::cout << "Выручка в кассе: " << cash_in_come << std::endl;
+	std::cout << "Выручка по безналу: " << card_in_come << std::endl;
+	std::cout << "Итоговая выручка: " << total_in_come << std::endl;
 
+
+}
+
+void discount(int count, float &total_sum)
+{
+
+	if (count > 50) {
+		total_sum = total_sum - 0.15*total_sum ;
+		std::cout << "Количество суши превысило 50. Сумма на 15% меньше"<<std::endl;
+	}
+	
+	if (total_sum > 3000) {
+		for (int i = 0; i < size; i++)
+		{
+			if (count_arr[i]>=5)
+			{
+				count_arr[i] -= 5;
+
+				std::cout << "Итоговая сумма более 3000 рублей. " << name_arr[i] << "5 штук бесплатно"<<std::endl;
+				Add_size_receipt(i,5);
+				name_arr_receipt[size_receipt - 1] = name_arr[i];
+				price_arr_receipt[size_receipt-1] = 0;
+				break;
+
+			}
+		}
+	}
+	Cout_recipt();
 
 }
