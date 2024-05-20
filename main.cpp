@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <windows.h>
+
 
 //роллы. Магазин Cушан
 //НЕ СТАВИТЬ NAMESPACE
@@ -8,10 +10,12 @@
 //глобальные массивы
 //при нажатии на 1 загрузить Cout
 int size = 10;
+
 int* id_arr = new int[size];
 std::string* name_arr = new std::string[size];
 int* count_arr = new int[size];
 float* price_arr = new float[size];
+
 float cash = 23444;
 float cash_in_come = 0, card_in_come = 0, total_in_come = 0;
 
@@ -25,6 +29,12 @@ int* count_arr_receipt = new int[size_receipt];
 float* price_arr_receipt = new float[size_receipt];
 
 
+//для ручного склада
+int size_arm = 1;
+std::string* name_arr_arm = new std::string[size_arm];
+int* count_arr_arm = new int[size_arm];
+float* price_arr_arm = new float[size_arm];
+int* id_arr_arm = new int[size_arm];
 
 
 //функции
@@ -45,8 +55,6 @@ void Cout_storage();//вывод магазина
 void Shop();//основная функция
 
 void Cout_storage();//вывод магазина
-
-void Shop();//основная функция
 
 void Sell();//продажа
 
@@ -72,11 +80,14 @@ void Cash_status();
 
 void discount(int count, float &total_sum);
 
+void Arm_storage();
+
+
 
 int main() {
 
-	setlocale(LC_ALL, "ru");
-
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
 	Start();
 	Delete_main_arr();
 	Delete_arr_receipt();
@@ -120,12 +131,13 @@ void Start()
 			exit = true;//закончить цикл
 			int chooseStorageType;
 			do {
-				std::cout << "Выберите формат склада: \n 1-готовый \n 2 - создать вручную\n";
+				std::cout << "Выберите формат склада: \n1 - готовый \n2 - создать вручную\n";
 				std::cin >> chooseStorageType;
 
 			} while (chooseStorageType < 1 || chooseStorageType>2);
 
 			Ignore();
+			system("cls");
 			if (chooseStorageType == 1) {
 				//создать и запустить
 				Create_storage();
@@ -133,6 +145,8 @@ void Start()
 			}
 			else if (chooseStorageType == 2) {
 				std::cout << "В разработке\n";
+				Arm_storage();
+
 			}
 			else {
 				std::cerr << "Error\n";
@@ -151,7 +165,7 @@ void Start()
 
 void Ignore() {
 
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');//очистка cin(всего потока данных)от начала до конца
+	std::cin.ignore(32000, '\n');//очистка cin(всего потока данных)от начала до конца
 
 
 }
@@ -234,6 +248,7 @@ void Shop() {
 
 
 		} while (choose < 0 || choose>7);
+		system("cls");
 
 		if (choose == 1)
 		{
@@ -422,6 +437,7 @@ void Sell()
 		}
 		break;
 	}
+	system("cls");
 
 }
 
@@ -524,7 +540,8 @@ void Remove_from_storage()
 
 	} while (count < 0 || count  > count_arr[id - 1]);
 	count_arr[id - 1] -= count;
-	std::cout << "\nТовар успешно списан!";
+	std::cout << "\nТовар успешно списан!"<<std::endl;
+	system("cls");
 	Cout_storage();
 
 }
@@ -548,7 +565,7 @@ void Add_to_storage()
 
 	} while (count < 0 || count > 1000);
 	count_arr[id - 1] += count;
-	std::cout << "\nУспешно пополнено!";
+	std::cout << "\nУспешно пополнено!"<<std::endl;
 
 }
 
@@ -582,7 +599,7 @@ void DeleteElementByIndex()
 		std::cout << "Введите Id товара для удаления: ";
 		std::cin >> index;
 
-	} while (index < 1 || index > size);
+	} while (index < 1 || index > size+1);
 	for (int i = 0, j = 0; i < size, j < size; i++, j++)
 	{
 		if (index - 1 == i) {
@@ -642,6 +659,7 @@ void Add_element_to_end()
 	std::cout << "Введите имя нового товара: \n";
 	Ignore();
 	std::getline(std::cin, name_arr[size - 1], '\n');
+	name_arr[size - 1] = name_arr[size - 1] + "\t";
 	std::cout << "Введите кол-во нового товара: \n";
 	std::cin >> count_arr[size - 1];
 	std::cout << "\nВведите цену нового товара: \n";
@@ -690,3 +708,101 @@ void discount(int count, float &total_sum)
 	Cout_recipt();
 
 }
+
+void Arm_storage()
+{
+	int id=0, count;
+	float price;
+	std::string name;
+	int* idArrTempArm = new int[size_arm];
+	std::string* nameArrTempArm = new std::string[size_arm];
+	int* CountArrTempArm = new int[size_arm];
+	float* priceArrTempArm = new float[size_arm];
+	std::cout << "Вводите данные о товаре, если имя это end, то это конец ввода данных" << std::endl;
+	//данные из переменных переходят во временый массив. Оттуда перекидываем 
+	// в нормальный массив. Удаляем данные из временного массива. Перекидываем в 
+	// него из нормального массива. удаляем нормальный массив. увеличиваем. 
+	// возвращаем данные 
+
+	
+
+	while (id >= 0||id<500){
+		std::cout<<std::endl;
+		id++;
+		std::cout << "\nВведите имя товара: ";
+		std::getline(std::cin, name);
+
+		if (name == "end")
+			{
+				break;
+			}
+		name = name + "\t";
+		std::cout << "\nВведите количестово нового товара: ";
+		std::cin >> count;
+		Ignore();
+		std::cout << "\nВведите цену товара: ";
+		std::cin >> price;
+		Ignore();
+		
+
+
+			
+		nameArrTempArm[size_arm-1] = name;
+		CountArrTempArm[size_arm-1] = count;
+		priceArrTempArm[size_arm-1] = price;
+
+		for (int i = 0; i < size_arm; i++)
+		{
+			name_arr_arm[i] = nameArrTempArm[i];
+			count_arr_arm[i] = CountArrTempArm[i];
+			price_arr_arm[i] = priceArrTempArm[i];
+		}
+
+
+		delete[]idArrTempArm;
+		delete[]nameArrTempArm;
+		delete[]CountArrTempArm;
+		delete[]priceArrTempArm;
+		size_arm++;
+		idArrTempArm = new int[size_arm];
+		nameArrTempArm = new std::string[size_arm];
+		CountArrTempArm = new int[size_arm];
+		priceArrTempArm = new float[size_arm];
+		for (int i = 0; i < size_arm-1; i++)
+		{
+			nameArrTempArm[i] = name_arr_arm[i];
+			CountArrTempArm[i] = count_arr_arm[i];
+			priceArrTempArm[i] = price_arr_arm[i];
+		}
+
+
+		delete[]id_arr_arm;
+		delete[]name_arr_arm;
+		delete[]count_arr_arm;
+		delete[]price_arr_arm;
+
+		id_arr_arm = new int[size_arm];
+		name_arr_arm = new std::string[size_arm];
+		count_arr_arm = new int[size_arm];
+		price_arr_arm = new float[size_arm];
+		id_arr[id-1] = id;
+	}
+
+
+	size = size_arm-1;
+
+	for (int i = 0; i < size; i++)
+	{
+		count_arr[i] = CountArrTempArm[i];
+		name_arr[i] = nameArrTempArm[i];
+		price_arr[i] = priceArrTempArm[i];
+	}
+
+	delete[]idArrTempArm;
+	delete[]nameArrTempArm;
+	delete[]CountArrTempArm;
+	delete[]priceArrTempArm;
+	
+	Shop();
+}
+
